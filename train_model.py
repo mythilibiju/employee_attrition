@@ -3,6 +3,8 @@ import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
 
 # Load dataset
 df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
@@ -34,8 +36,21 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Train model
-model = RandomForestClassifier(n_estimators=100)
+model = RandomForestClassifier(
+    n_estimators=200,
+    class_weight={0:1, 1:4},  # manually boost minority
+    random_state=42
+)
 model.fit(X_train, y_train)
+
+# Predictions
+y_prob = model.predict_proba(X_test)[:,1]
+y_pred = (y_prob > 0.25).astype(int)
+
+# Evaluation
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
 # Save everything
 pickle.dump(model, open("model/model.pkl", "wb"))

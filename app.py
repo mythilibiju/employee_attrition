@@ -1,15 +1,52 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Load artifacts
 model = pickle.load(open("model/model.pkl", "rb"))
 scaler = pickle.load(open("model/scaler.pkl", "rb"))
 encoders = pickle.load(open("model/encoder.pkl", "rb"))
 
-st.title("Employee Attrition Prediction System")
+df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
 
-st.sidebar.header("Enter Employee Details")
+st.title("Employee Attrition Prediction System")
+st.header("📊 Dataset Analysis Dashboard")
+if st.checkbox("Show Dataset Visualizations"):
+    st.subheader("Attrition Distribution")
+    fig1, ax1 = plt.subplots()
+    sns.countplot(x="Attrition", data=df, ax=ax1)
+    st.pyplot(fig1)
+    st.sidebar.header("Enter Employee Details")
+
+
+    st.subheader("Age Distribution by Attrition")
+    fig2, ax2 = plt.subplots()
+    sns.histplot(data=df, x="Age", hue="Attrition", kde=True, ax=ax2)
+    st.pyplot(fig2)
+
+
+    st.subheader("Monthly Income vs Attrition")
+    fig3, ax3 = plt.subplots()
+    sns.boxplot(x="Attrition", y="MonthlyIncome", data=df, ax=ax3)
+    st.pyplot(fig3)
+    
+    
+    st.subheader("Job Role vs Attrition")
+    fig4, ax4 = plt.subplots(figsize=(10,5))
+    sns.countplot(y="JobRole", hue="Attrition", data=df, ax=ax4)
+    st.pyplot(fig4)
+    
+    
+    st.subheader("Feature Correlation Heatmap")
+    fig5, ax5 = plt.subplots(figsize=(12,8))
+    corr = df.corr(numeric_only=True)
+    sns.heatmap(corr, cmap="coolwarm", ax=ax5)
+    st.pyplot(fig5)
+
+
+
 
 def user_input():
     data = {}
